@@ -1,0 +1,56 @@
+{
+
+  "name": "invibm",
+
+  "description": "InviBM is a versatile tool that facilitates the seamless creation of backups for MongoDB and MySQL databases. Users can schedule automated backups at their preferred intervals and securely upload them to Google Drive for safekeeping. With an easy-to-use interface and customizable configuration options, this application ensures data reliability and protection for various projects and businesses. It provides real-time status notifications, error handling, and logging mechanisms, making it a reliable solution for managing database backups efficiently.",
+
+  "version": "1.0.0",
+
+  "main": "app.js",
+
+  "dependencies": {
+
+    "dotenv": "^16.3.1",
+
+    "js-yaml": "^4.1.0",
+
+    "node-cron": "^3.0.2",
+
+    "winston": "^3.10.0"
+
+  },
+
+  "scripts": {
+
+    "test": "echo \"Error: no test specified\" && exit 1"
+
+  },
+
+  "repository": {
+
+    "type": "git",
+
+    "url": "git+https://github.com/abhaymishra72/backup-manager.git"
+
+  },
+
+  "keywords": [
+
+    "Back Manager"
+
+  ],
+
+  "author": "Abhay Mishra",
+
+  "license": "ISC",
+
+  "bugs": {
+
+    "url": "https://github.com/abhaymishra72/backup-manager/issues"
+
+  },
+
+  "homepage": "https://github.com/abhaymishra72/backup-manager#readme"
+
+}
+
