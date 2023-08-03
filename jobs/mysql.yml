@@ -1,0 +1,12 @@
+name: 'MySQL'
+driver: 'mysql'
+schedule: '* * * * *'
+
+database:
+  host: 'localhost'
+  database: 'test_database'
+  user: 'phpmyadmin'
+  password: 'Phpmyadmin@123'
+
+notification:
+  - notification@example.com
