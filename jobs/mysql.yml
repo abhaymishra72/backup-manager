@@ -1,6 +1,6 @@
 name: 'MySQL'
 driver: 'mysql'
-schedule: '* * * * *'
+schedule: '0 2 * * *' # To run at every midnight 2PM
 
 database:
   host: 'localhost'

@@ -1,11 +1,11 @@
 name: 'MongoDB'
 driver: 'mongodb'
-schedule: '* * * * *'
+schedule: '0 2 * * *' # To run at every midnight 2PM
 
 database:
   host: 'localhost'
-  database: 'test'
-  user: 'test'
+  database: 'InviEcom_demo_1'
+  user: ''
   password: ''
 
 notification:
