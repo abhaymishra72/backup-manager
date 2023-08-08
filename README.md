@@ -1,6 +1,6 @@
-# InviBM (database backup tool)
+# BM Pro: Effortless Database Backup Tool
 
-**InviBM** is a powerful and versatile tool designed to create backups of databases, supporting both MongoDB and MySQL databases. With its user-friendly interface, the application allows users to effortlessly schedule and manage backup processes.
+**BM Pro** is a powerful and versatile tool designed to create backups of databases, supporting both MongoDB and MySQL databases. With its user-friendly interface, the application allows users to effortlessly schedule and manage backup processes.
 
 Key features of the application include:
 
@@ -18,4 +18,4 @@ Key features of the application include:
 
 7. Easy Deployment: The application is designed to be easily deployable on various platforms, making it accessible for developers and system administrators alike.
 
-By offering an all-in-one solution for database backup management, the Node application ensures data reliability and security, giving users peace of mind in safeguarding their valuable information. Whether for personal projects, small businesses, or enterprise-level applications, this backup tool serves as a reliable data protection system.
+By offering an all-in-one solution for database backup management, the BM Pro ensures data reliability and security, giving users peace of mind in safeguarding their valuable information. Whether for personal projects, small businesses, or enterprise-level applications, this backup tool serves as a reliable data protection system.
