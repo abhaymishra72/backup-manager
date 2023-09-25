@@ -1,12 +1,12 @@
-name: 'InviHR'
-driver: 'mongodb'
+name: 'InviCRM'
+driver: 'mysql'
 schedule: '* * * * *' # To run at every midnight 2PM
 
 database:
   host: 'localhost'
-  database: 'Dhanvriksh'
-  user: ''
-  password: ''
+  database: 'InviCRM_primary_db'
+  user: 'phpmyadmin'
+  password: 'Mr.Abhay@123'
 
 notification:
   - notification@example.com

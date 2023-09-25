@@ -2,26 +2,28 @@ const mysqldump = require("mysqldump"),
   { MongoClient } = require("mongodb"),
   fs = require("fs"),
   path = require("path"),
-  { getBackupFilePath, getBackupDir } = require(".");
+  { getBackupFilePath, getBackupDir, zipDirectory } = require(".");
+const { exec } = require("child_process");
+const { uploadToDrive } = require("./drive");
 
 // Function to backup a MySQL database
-async function backupMysqlDatabase(databaseDetails, backupFilePath) {
+async function backupMysqlDatabase(config, backupFilePath) {
   try {
     await mysqldump({
-      connection: databaseDetails, // MySQL connection config (e.g., { host, user, password, database })
+      connection: config.database, // MySQL connection config (e.g., { host, user, password, database })
       dumpToFile: backupFilePath,
     });
 
-    console.log(
-      `Database backup completed successfully. Backup saved to: ${backupFilePath}`
-    );
+    uploadToDrive(config, backupFilePath, "application/sql");
+
+    console.log(`Database backup completed successfully for ${config.name}`);
   } catch (error) {
     console.error("Error during database backup:", error);
   }
 }
 
-async function backupMongoDB(databaseDetails, backupDir) {
-  const { host, database, user, password } = databaseDetails;
+async function backupMongoDB(config, backupDir) {
+  const { host, database, user, password } = config.database;
   let connectionString = `mongodb://${host}/${database}`;
 
   // Append user and password if provided
@@ -31,52 +33,45 @@ async function backupMongoDB(databaseDetails, backupDir) {
     )}:${encodeURIComponent(password)}@${host}/${database}`;
   }
 
-  const client = new MongoClient(connectionString);
+  if (config?.database?.uri && config.driver === "mongodb")
+    connectionString = config.database.uri;
 
   try {
-    await client.connect();
+    await createMongoDBBackup(connectionString, backupDir);
 
-    const db = client.db(database);
+    zipDirectory(backupDir, `${backupDir}.zip`).then((res) => {
+      uploadToDrive(config, `${backupDir}.zip`, "application/zip");
+    });
 
-    // Get the list of collections in the database
-    const collections = await db.listCollections().toArray();
-
-    // Create backup directory if it doesn't exist
-    if (!fs.existsSync(backupDir)) {
-      fs.mkdirSync(backupDir, { recursive: true });
-    }
-
-    // Dump each collection to separate files
-    for (const collection of collections) {
-      const collectionName = collection.name;
-      const collectionFilePath = path.join(backupDir, `${collectionName}.json`);
-
-      const collectionData = await db
-        .collection(collectionName)
-        .find()
-        .toArray();
-      const jsonData = JSON.stringify(collectionData, null, 2);
-
-      fs.writeFileSync(collectionFilePath, jsonData, "utf8");
-    }
-
-    console.log("Database backup completed successfully.");
+    console.log(`Database backup completed successfully for ${config.name}`);
   } catch (error) {
     console.error("Error during database backup:", error);
-  } finally {
-    client.close();
   }
+}
+
+function createMongoDBBackup(databaseURL, backupPath) {
+  return new Promise((resolve, reject) => {
+    const command = `mongodump --uri="${databaseURL}" --out="${backupPath}"`;
+
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error creating MongoDB backup: ${error.message}`);
+        reject(error);
+        return;
+      }
+      resolve(backupPath);
+    });
+  });
 }
 
 function backupDatabase(config) {
   switch (config.driver) {
     case "mysql":
-      backupMysqlDatabase(config.database, `${getBackupFilePath(config)}.sql`);
+      backupMysqlDatabase(config, `${getBackupFilePath(config)}.sql`);
       break;
 
     case "mongodb":
-      console.log("mongodb called");
-      backupMongoDB(config.database, getBackupDir(config));
+      backupMongoDB(config, getBackupDir(config));
       break;
   }
 }

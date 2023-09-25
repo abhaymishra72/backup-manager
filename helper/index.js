@@ -1,6 +1,8 @@
 const fs = require("fs");
 const yaml = require("js-yaml");
 const path = require("path");
+const archiver = require("archiver");
+
 
 function convertYamlToJsObject(filePath) {
   try {
@@ -17,9 +19,9 @@ function checkAndCreateDir(directoryPath) {
   try {
     if (!fs.existsSync(directoryPath)) {
       fs.mkdirSync(directoryPath, { recursive: true });
-      console.log(`Directory created: ${directoryPath}`);
+      // console.log(`Directory created: ${directoryPath}`);
     } else {
-      console.log(`Directory already exists: ${directoryPath}`);
+      // console.log(`Directory already exists: ${directoryPath}`);
     }
   } catch (error) {
     console.error("Error checking or creating directory:", error.message);
@@ -45,7 +47,7 @@ function getBackupDir({ name, driver }) {
   let backupPath = `${__rootDir}/backup/${name}`;
   checkAndCreateDir(backupPath);
 
-  const backup_dir = `${backupPath}/${driver}_${date.getFullYear()}_${date
+  const backup_dir = `${backupPath}/${name}_${driver}_${date.getFullYear()}_${date
     .getMonth()
     .toString()
     .padStart(2, "0")}_${date
@@ -108,6 +110,57 @@ function getJobsFullPath(file) {
   return `${__rootDir}/jobs/${file}`;
 }
 
+function cronToReadable(cronExpression) {
+  const parts = cronExpression.split(" ");
+
+  if (parts.length !== 5) {
+    return "Invalid cron expression";
+  }
+
+  const minute = parts[0];
+  const hour = parts[1];
+  const dayOfMonth = parts[2];
+  const month = parts[3];
+  const dayOfWeek = parts[4];
+
+  // Convert cron fields to human-readable format
+  const minuteText =
+    minute === "*" ? "every minute" : `every ${minute} minute(s)`;
+  const hourText = hour === "*" ? "every hour" : `at ${hour} o'clock`;
+  const dayOfMonthText =
+    dayOfMonth === "*" ? "every day" : `on day ${dayOfMonth}`;
+  const monthText = month === "*" ? "every month" : `in ${month}`;
+  const dayOfWeekText =
+    dayOfWeek === "*" ? "every day of the week" : `on ${dayOfWeek}`;
+
+  return `${minuteText}, ${hourText}, ${dayOfMonthText}, ${monthText}, ${dayOfWeekText}`;
+}
+
+function zipDirectory(sourceDir, outputZip) {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(outputZip);
+    const archive = archiver("zip", {
+      zlib: { level: 9 }, // Set the compression level (0-9)
+    });
+
+    output.on("close", () => {
+      resolve(outputZip);
+    });
+
+    archive.on("error", (err) => {
+      reject(err);
+    });
+
+    archive.pipe(output);
+
+    archive.directory(sourceDir, false); // Add the entire directory to the archive
+
+    archive.finalize();
+  });
+}
+
+
+
 module.exports = {
   getBackupFilePath,
   checkAndCreateDir,
@@ -115,4 +168,6 @@ module.exports = {
   validateConfigObject,
   getJobsFullPath,
   getBackupDir,
+  cronToReadable,
+  zipDirectory,
 };

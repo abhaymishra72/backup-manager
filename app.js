@@ -1,3 +1,4 @@
+require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const cron = require("node-cron");
@@ -5,7 +6,9 @@ const {
   convertYamlToJsObject,
   validateConfigObject,
   getJobsFullPath,
+  cronToReadable,
 } = require("./helper");
+
 const { backupDatabase } = require("./helper/backup");
 
 global.__rootDir = path.resolve(__dirname);
@@ -17,11 +20,13 @@ fs.readdirSync("./jobs").forEach((file) => {
     try {
       cron.schedule(config.schedule, () => backupDatabase(config));
       console.log(
-        `Cron job "${config.name}" scheduled with schedule: "${config.schedule}"`
+        `Backup scheduled for "${config.name}" at: "${cronToReadable(
+          config.schedule
+        )}"`
       );
     } catch (error) {
       console.error(
-        `Error scheduling cron job "${config.name}":`,
+        `Error scheduling backup "${config.name}":`,
         error.message
       );
     }
